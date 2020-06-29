@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:java="http://www.mulesoft.org/schema/mule/java"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="crc32-checksum-file-generator-flowFlow" doc:id="7cfc5984-e90f-404b-94ba-39a5a819074b" >
+		<scheduler doc:name="Scheduler" doc:id="ff19fc76-9fb2-419f-bbf5-6f3d88648a14" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="15" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<ee:transform doc:name="init vars" doc:id="201b003a-6657-4027-89dc-ed367ad38a50" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="orgFilename" ><![CDATA[%dw 2.0
+output application/java
+---
+"test.txt"]]></ee:set-variable>
+				<ee:set-variable variableName="inputPath" ><![CDATA[%dw 2.0
+output application/java
+---
+'${app.home}/' as String ++ 'test-files']]></ee:set-variable>
+				<ee:set-variable variableName="outputPath" ><![CDATA[%dw 2.0
+output application/java
+---
+'${app.home}/' as String ++ 'test-files']]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="invoke the checksum java service" doc:id="bbbac884-7650-4d96-9262-92f0a461100d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import java!mulesoft::asset::crc32::GenerateCRC32ChecksumFile
+output application/java
+---
+GenerateCRC32ChecksumFile::createChecksumFile(vars.orgFilename, vars.inputPath, vars.outputPath)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
